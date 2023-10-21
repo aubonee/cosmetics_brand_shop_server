@@ -61,7 +61,8 @@ const productCollection =client.db('productDB').collection('product');
 
 //   })
 
-//app.get('/products', async(req,res)=>{
+////////////////////get/read
+
   app.get('/products', async(req,res)=>{
   const cursor =productCollection.find();
  
@@ -70,27 +71,81 @@ const productCollection =client.db('productDB').collection('product');
 
 })
 
-// app.get('/products/:brandName', async (req, res) => {
-//   const id = req.params.brandName;
-//   const query = { brandName: brandName }
-//   const result = await coffeeCollection.find(query);
-//   res.send(result);
-// })
+//brand specific data read
+app.get('/brand/:brandName', async (req, res) => {
+  const brandName = req.params.brandName;
+  const query = { brandname: brandName }
+  const cursor= productCollection.find(query);
+  const result =  await cursor.toArray();
+  res.send(result);
+})
 
-  app.post('/products', async(req,res)=>{
-    
+
+
+
+////////////////////update
+app.get('/brand/update/:id', async (req, res) => {
+// app.get('/products/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) }
+  const result = await productCollection.findOne(query);
+  res.send(result);
+})
+
+app.put('/brand/update/:id',async (req, res) => {
+   const id  = req.params.id;
+   const filter={_id: new ObjectId(id)}
+   const options ={upsert :true};
+   const updatedProduct =req.body;
+   const Product = {
+    $set:{
+      name :updatedProduct.name,
+      brandname :updatedProduct.brandname,
+      category :updatedProduct.category,
+       photourl :updatedProduct.photourl,  
+       price :updatedProduct.price,
+       rating :updatedProduct.rating, 
+       shortDesc :updatedProduct.shortDesc
+    }
+   }
+
+   const result = await productCollection.updateOne(filter,Product,options);
+   res.send(result);
+
+
+})
+
+//////////////view detail
+app.get('/viewDetail/:id', async (req, res) => {
+  const id  = req.params.id;
+  const query = { _id: new ObjectId(id) }
+  const result = await productCollection.findOne(query);
+  res.send(result);
+  
+})
+
+
+
+
+
+////////////////////create
+  app.post('/products', async(req,res)=>{ 
     const newproduct =req.body;
     console.log(newproduct);
     const result =await productCollection.insertOne(newproduct);
     res.send(result);
 
   })
+
+  /////////////delete
   app.delete('/products/:id', async (req, res) => {
     const id = req.params.id;
     const query = { _id: new ObjectId(id) }
     const result = await productCollection.deleteOne(query);
     res.send(result);
 })
+
+
 
 app.get('/',(req,res)=>{
     res.send('server side running')
