@@ -51,6 +51,7 @@ async function run() {
 }
 run().catch(console.dir);
 const productCollection =client.db('productDB').collection('product');
+const cartCollection = client.db('productDB').collection('cart');
    
 //  app.get('/products', async(req,res)=>{
 //     app.get('/products', async(req,res)=>{
@@ -127,7 +128,6 @@ app.get('/viewDetail/:id', async (req, res) => {
 
 
 
-
 ////////////////////create
   app.post('/products', async(req,res)=>{ 
     const newproduct =req.body;
@@ -136,6 +136,32 @@ app.get('/viewDetail/:id', async (req, res) => {
     res.send(result);
 
   })
+//////////////cart
+  app.post('/cart', async(req,res)=>{ 
+    const newproduct =req.body;
+    delete newproduct._id;
+    console.log(newproduct);
+    const result =await cartCollection.insertOne(newproduct);
+    res.send(result);
+
+  })
+
+  app.get('/cart/:email', async (req, res) => {
+    const email  = req.params.email;
+    const query = { email }
+    const result = await cartCollection.find(query).toArray();
+    res.send(result);
+    
+  })
+  /////////////cart data delete
+  app.delete('/cart/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) }
+    const result = await cartCollection.deleteOne(query);
+    res.send(result);
+})
+
+
 
   /////////////delete
   app.delete('/products/:id', async (req, res) => {
